@@ -12,7 +12,7 @@ local mainView = ui.View(ui.Bounds(-15, 0.7, 0,   1, 0.5, 0.1):scale(0.2, 0.2, 0
 local grabHandle = ui.GrabHandle(ui.Bounds( -0.5, 0.5, 0.3,   0.2, 0.2, 0.2))
 mainView:addSubview(grabHandle)
 
-local f = io.open("lua/data.txt", "r")
+local f = io.open("data.txt", "r")
 local lineIndex = 0
 local actualLineIndex = 0
 for line in f:lines() do
