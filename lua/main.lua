@@ -1,6 +1,5 @@
 local stringx = require("pl.stringx")
 stringx.import()
-local Cube = require("cube")
 
 local client = Client(
     arg[2], 
@@ -30,7 +29,7 @@ for line in f:lines() do
                 local label = ui.Label{bounds=bounds, text=field, color={0,0,0,1}}
                 mainView:addSubview(label)
             else
-                local cube = Cube(bounds)
+                local cube = ui.Cube(bounds)
                 if fieldIndex < 10 then
                     cube:setColor({0.3, 0.8, 0.2, 1.0})
                 else
