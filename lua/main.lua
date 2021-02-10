@@ -1,5 +1,6 @@
 local stringx = require("pl.stringx")
 stringx.import()
+local Plotline = require("plotline")
 
 local client = Client(
     arg[2], 
