@@ -12,6 +12,7 @@ local root = ui.View(ui.Bounds(-2, 0.7, 0,   1, 0.5, 0.1))
 local mainView = ui.View(ui.Bounds(0, 0, 0,   1, 1, 1):scale(0.2, 0.2, 0.2))
 root:addSubview(mainView)
 local grabHandle = ui.GrabHandle(ui.Bounds( -0.5, 0.5, 0.3,   0.2, 0.2, 0.2))
+grabHandle.rotationConstraint = {0,1,0}
 root:addSubview(grabHandle)
 
 local rowLabels = {}
@@ -46,7 +47,7 @@ io.close(f)
 
 local width = #columnLabels
 local depth = #rowLabels
-local height = 30
+local height = 40
 
 for i, columnLabel in ipairs(columnLabels) do
     local bounds = ui.Bounds(i, 0, 0,   0.2, 0.2, 0.2)
@@ -81,6 +82,17 @@ for columnIndex, columnValues in ipairs(columnsValues) do
             cube:setColor({0.7, 0.3, 0.4, 1.0})
         end
         mainView:addSubview(cube)
+    end
+
+    local bounds = ui.Bounds(columnIndex, height/2, -depth/2 - 1,   0.2, height, depth)
+    local plot = Plotline(bounds)
+    plot.maxValue = highestValue
+    plot:setValues(columnValues, false)
+    mainView:addSubview(plot)
+    if columnIndex < 10 then
+        plot:setColor({0.3, 0.8, 0.2, 1.0})
+    else
+        plot:setColor({0.7, 0.3, 0.4, 1.0})
     end
 end
 
