@@ -11,7 +11,7 @@ class.Plotline(ui.View)
 function Plotline:_init(bounds)
     self:super(bounds)
 
-    self.values = {0} -- list of doubles
+    self.values = {1.0, 1.0} -- list of doubles
     self.maxValue = 1
 
     self.color = {0.9, 0.4, 0.3, 1.0}
@@ -22,7 +22,7 @@ function Plotline:setValues(values, updateMax)
         updateMax = true
     end
     
-    while #self.values do
+    while #self.values > 0 do
         table.remove(self.values)
     end
 
@@ -30,8 +30,13 @@ function Plotline:setValues(values, updateMax)
     for i, v in ipairs(values) do
         table.insert(self.values, v)
         if v > maxValue then
-            maxValue = values
+            maxValue = v
         end
+    end
+    if #self.values == 0 then
+        print("oops too short, adding dummy")
+        table.insert(self.values, 0.0)
+        maxValue = 1.0
     end
     if updateMax then
         self.maxValue = maxValue
@@ -52,7 +57,43 @@ function Plotline:specification()
     local d2 = s.depth / 2.0
     local step = s.depth / #self.values
 
-    local mySpec = tablex.union(ui.View.specification(self), {
+    local geom = {
+        type= "inline",
+        vertices= {},
+        triangles= {},
+    }
+
+    -- let's start out adding the front bottom lip of the line.
+    table.insert(geom.vertices, {-w2, -h2, d2})
+    table.insert(geom.vertices, {w2, -h2, d2})
+
+    -- then go ahead and add the rest of the faces
+    for i, value in ipairs(self.values) do
+        local valueFraction = value/self.maxValue
+        local valueHeight = valueFraction * s.height
+        table.insert(geom.vertices, {-w2, valueHeight -h2, (step * i) - d2})
+        table.insert(geom.vertices, {w2, valueHeight -h2, (step * i) - d2})
+        local top = #geom.vertices
+        table.insert(geom.triangles, {top - 3, top - 2, top - 1})
+        table.insert(geom.triangles, {top - 2, top - 0, top - 1})
+    end
+
+    local mySpec = tablex.union(View.specification(self), {
+        geometry = geom,
+        
+        material = {
+            color = self.color
+        },
+    })
+
+    return mySpec
+end
+function Plotline:specificationz()
+    local s = self.bounds.size
+    local w2 = s.width / 2.0
+    local h2 = s.height / 2.0
+    local d2 = s.depth / 2.0
+    local mySpec = tablex.union(View.specification(self), {
         geometry = {
             type = "inline",
                   --   #fbl                #fbr               #ftl                #ftr             #rbl                  #rbr                 #rtl                  #rtr
