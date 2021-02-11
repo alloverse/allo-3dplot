@@ -11,9 +11,38 @@ local app = App(client)
 local root = ui.View(ui.Bounds(-2, 0.7, 0,   1, 0.5, 0.1))
 local mainView = ui.View(ui.Bounds(0, 0, 0,   1, 1, 1):scale(0.2, 0.2, 0.2))
 root:addSubview(mainView)
-local grabHandle = ui.GrabHandle(ui.Bounds( -0.5, 0.5, 0.3,   0.2, 0.2, 0.2))
+
+local grabHandle = ui.GrabHandle(ui.Bounds( -0.5, 0.9, -0.099,   0.6, 0.2, 0.2))
 grabHandle.rotationConstraint = {0,1,0}
 root:addSubview(grabHandle)
+
+local plaque = ui.Surface(ui.Bounds( -0.5, 0.5, -0.1,   0.6, 1.0, 0.2))
+plaque:setColor({0.8, 0.8, 0.8, 1.0})
+root:addSubview(plaque)
+
+plaque:addSubview(ui.Label{
+    bounds= ui.Bounds( 0.075, 0.2, 0.001,   0.6, 0.07, 0.01),
+    text= "Legend:",
+    halign= "left",
+    color= {0,0,0,1}
+})
+
+plaque:addSubview(ui.Surface(ui.Bounds( -0.15, 0.05, 0.001,   0.12, 0.12, 0.01))):setColor({0.3, 0.8, 0.2, 1.0})
+
+plaque:addSubview(ui.Label{
+    bounds= ui.Bounds( 0.25, 0.05, 0.001,   0.6, 0.05, 0.01),
+    text= "2019",
+    halign= "left",
+    color= {0,0,0,1}
+})
+
+plaque:addSubview(ui.Surface(ui.Bounds( -0.15, -0.12, 0.001,   0.12, 0.12, 0.01))):setColor({0.7, 0.3, 0.4, 1.0})
+plaque:addSubview(ui.Label{
+    bounds= ui.Bounds( 0.25, -0.12, 0.001,   0.6, 0.05, 0.01),
+    text= "2020",
+    halign= "left",
+    color= {0,0,0,1}
+})
 
 local rowLabels = {}
 local columnLabels = {}
@@ -30,7 +59,9 @@ for line in f:lines() do
         for fieldIndex, field in ipairs(fields) do
             if lineIndex == 1 then
                 table.insert(columnLabels, field)
-                table.insert(columnsValues, {})
+                if fieldIndex > 1 then
+                    table.insert(columnsValues, {})
+                end
             elseif fieldIndex == 1 then
                 table.insert(rowLabels, field)
             else
@@ -38,7 +69,7 @@ for line in f:lines() do
                 if value > highestValue then
                     highestValue = value
                 end
-                table.insert(columnsValues[fieldIndex], value)
+                table.insert(columnsValues[fieldIndex-1], value)
             end
         end
     end
@@ -50,9 +81,11 @@ local depth = #rowLabels
 local height = 40
 
 for i, columnLabel in ipairs(columnLabels) do
-    local bounds = ui.Bounds(i, 0, 0,   0.2, 0.2, 0.2)
-    local label = ui.Label{bounds=bounds, text=columnLabel, color={0,0,0,1}}
-    mainView:addSubview(label)
+    if i < 11 then
+        local bounds = ui.Bounds(i, 0, 0,   0.2, 0.2, 0.2)
+        local label = ui.Label{bounds=bounds, text=columnLabel, color={0,0,0,1}}
+        mainView:addSubview(label)
+    end
 end
 
 for i, rowLabel in ipairs(rowLabels) do
@@ -73,8 +106,8 @@ for columnIndex, columnValues in ipairs(columnsValues) do
     for rowIndex, value in ipairs(columnValues) do
         local z = -rowIndex
         local y = (value / highestValue) * height
-        local x = columnIndex
-        local bounds = ui.Bounds(x, y, z,   0.2, 0.2, 0.2)
+        local x = 1 + (columnIndex % 10) + ((columnIndex > 9) and 1.2 or 0)
+        local bounds = ui.Bounds(x, y/2, z,   0.2, y, 1.0)
         local cube = ui.Cube(bounds)
         if columnIndex < 10 then
             cube:setColor({0.3, 0.8, 0.2, 1.0})
@@ -82,17 +115,6 @@ for columnIndex, columnValues in ipairs(columnsValues) do
             cube:setColor({0.7, 0.3, 0.4, 1.0})
         end
         mainView:addSubview(cube)
-    end
-
-    local bounds = ui.Bounds(columnIndex, height/2, -depth/2 - 1,   0.2, height, depth)
-    local plot = Plotline(bounds)
-    plot.maxValue = highestValue
-    plot:setValues(columnValues, false)
-    mainView:addSubview(plot)
-    if columnIndex < 10 then
-        plot:setColor({0.3, 0.8, 0.2, 1.0})
-    else
-        plot:setColor({0.7, 0.3, 0.4, 1.0})
     end
 end
 
