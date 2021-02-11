@@ -8,9 +8,11 @@ local client = Client(
 )
 local app = App(client)
 
-local mainView = ui.View(ui.Bounds(-15, 0.7, 0,   1, 0.5, 0.1):scale(0.2, 0.2, 0.2))
+local root = ui.View(ui.Bounds(-2, 0.7, 0,   1, 0.5, 0.1))
+local mainView = ui.View(ui.Bounds(0, 0, 0,   1, 1, 1):scale(0.2, 0.2, 0.2))
+root:addSubview(mainView)
 local grabHandle = ui.GrabHandle(ui.Bounds( -0.5, 0.5, 0.3,   0.2, 0.2, 0.2))
-mainView:addSubview(grabHandle)
+root:addSubview(grabHandle)
 
 local rowLabels = {}
 local columnLabels = {}
@@ -84,6 +86,6 @@ end
 
 
 
-app.mainView = mainView
+app.mainView = root
 app:connect()
 app:run()
